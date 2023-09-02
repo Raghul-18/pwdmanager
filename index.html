@@ -5,10 +5,78 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Passwords</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f2f2f2;
+  }
+  
+  .container {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .credential-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .credential-item {
+    padding: 15px;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+  
+  .credential-detail {
+    font-size: 1em;
+    color: #444;
+    margin-bottom: 5px;
+  }
+  
+  .toggle-button {
+  display: block;
+  width: 150px;
+  height: 50px;
+  margin: 20px auto;
+  padding: 10px 15px;
+  background-color: #007bff; /* Button background color */
+  color: #fff; /* Button text color */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.toggle-button:hover {
+  background-color: #0056b3; /* Button background color on hover */
+}
+
+.toggle-button:focus {
+  outline: none;
+}
+
+/* Center the button within its container */
+
+  </style>
 </head>
 <body>
-  <div class="container">
+<div class="container">
     <h1>User Credentials</h1>
+      <button id="credButton" class="toggle-button" onclick="toggleCredentialType()">Show Credentials</button>
     <ul id="credentialList" class="credential-list"></ul>
   </div>
 
@@ -31,22 +99,46 @@
     // Reference to Firebase Realtime Database
     const database = firebase.database();
     const credentialList = document.getElementById("credentialList");
+    let currentDirectory = "cred"; // Default directory
 
-    // Read data from Firebase and populate the credential list
-    database.ref("cred").on("value", (snapshot) => {
-      credentialList.innerHTML = "";
-      snapshot.forEach((childSnapshot) => {
-        const credential = childSnapshot.val();
-        const li = document.createElement("li");
-        li.innerHTML = `
-          <div class="credential-item">
-            <div class="credential-detail">Username: ${credential.username}</div>
-            <div class="credential-detail">Password: ${credential.password}</div>
-          </div>
-        `;
-        credentialList.appendChild(li);
+    // Function to toggle between directories
+    function toggleCredentialType() {
+      if (currentDirectory === "cred") {
+        currentDirectory = "forgot"; // Change to your other directory name
+      } else {
+        currentDirectory = "cred"; // Change back to the default directory
+      }
+      loadCredentials();
+    }
+
+    // Function to load credentials from the current directory
+    function loadCredentials() {
+      database.ref(currentDirectory).on("value", (snapshot) => {
+        credentialList.innerHTML = "";
+        const credentials = [];
+        snapshot.forEach((childSnapshot) => {
+          const credential = childSnapshot.val();
+          credentials.push(credential);
+        });
+
+        // Reverse the order of credentials
+        credentials.reverse();
+
+        credentials.forEach((credential) => {
+          const li = document.createElement("li");
+          li.innerHTML = `
+            <div class="credential-item">
+              <div class="credential-detail">Username: ${credential.username}</div>
+              <div class="credential-detail">Password: ${credential.password}</div>
+            </div>
+          `;
+          credentialList.appendChild(li);
+        });
       });
-    });
+    }
+
+    // Initial load of credentials
+    loadCredentials();
   </script>
 </body>
 </html>
